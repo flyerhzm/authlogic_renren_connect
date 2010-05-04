@@ -1,0 +1,47 @@
+== Install and use
+
+=== 1. Install the renren plugin and make Rails use it
+
+  $ script/plugin install git://github.com/taweili/renren.git
+
+Run the renren generator to create the cross domain scripting bridge to make it possible for your application to communicate with renren and make sure that you have setup your config/renren.yml to match your renren application
+
+  $ script/generate renren
+
+For more information on the renren plugin checkout it's readme http://github.com/taweili/renren
+
+=== 2. Install the Authlogic Renren Connect plugin
+
+  $ script/plugin install git://github.com/flyerhzm/authlogic_renren_connect.git
+
+=== 3. Make some changes to your database
+
+  class AddRenrenConnectFieldsToUser < ActiveRecord::Migration
+    def self.up
+      add_column :users, :renren_uid, :integer
+      add_column :users, :renren_session_key, :string
+    end
+
+    def self.down
+      remove_column :users, :renren_session_key
+      remove_column :users, :renren_uid
+    end
+  end
+
+=== 4. Add the Renren Connect button to your login form
+
+  <%= authlogic_renren_login_button %>
+  <%= xn_connect_javascript_tag %>
+  <%= init_xn_connect %>
+
+=== Notes
+
+If you want to save some user data when connecting to renren you can use the before_connect hook in your user model.
+
+  def before_connect(renren_session)
+    self.login = renren_session.user.name
+    self.active = true
+  end
+  
+For more information about what you can get form the renren_session checkout the renren plugin rdoc. 
+  

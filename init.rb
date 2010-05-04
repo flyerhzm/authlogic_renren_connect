@@ -1,0 +1,1 @@
+require 'authlogic_renren_connect'
