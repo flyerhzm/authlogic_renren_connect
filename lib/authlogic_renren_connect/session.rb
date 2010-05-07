@@ -93,32 +93,37 @@ module AuthlogicRenrenConnect
         end
 
         unless self.attempted_record || renren_skip_new_user_creation
-          # Get the user from renren and create a local user.
-          #
-          # We assign it after the call to new in case the attribute is protected.
+          begin
+            # Get the user from renren and create a local user.
+            #
+            # We assign it after the call to new in case the attribute is protected.
 
-          new_user = klass.new
+            new_user = klass.new
 
-          if klass == renren_user_class
-            new_user.send(:"#{renren_uid_field}=", renren_session.user.uid)
-            new_user.send(:"#{renren_session_key_field}=", renren_session.session_key)
-          else
-            new_user.send(:"build_#{renren_user_class.to_s.underscore}", :"#{renren_uid_field}" => renren_session.user.uid, :"#{renren_session_key_field}" => renren_session.session_key)
-          end
+            if klass == renren_user_class
+              new_user.send(:"#{renren_uid_field}=", renren_session.user.uid)
+              new_user.send(:"#{renren_session_key_field}=", renren_session.session_key)
+            else
+              new_user.send(:"build_#{renren_user_class.to_s.underscore}", :"#{renren_uid_field}" => renren_session.user.uid, :"#{renren_session_key_field}" => renren_session.session_key)
+            end
 
-          new_user.before_connect(renren_session) if new_user.respond_to?(:before_connect)
+            new_user.before_connect(renren_session) if new_user.respond_to?(:before_connect)
 
-          self.attempted_record = new_user
+            self.attempted_record = new_user
 
-          if renren_valid_user
-            errors.add_to_base(
-              I18n.t('error_messages.renren_user_creation_failed',
-                     :default => 'There was a problem creating a new user ' +
-                                 'for your Renren account')) unless self.attempted_record.valid?
+            if renren_valid_user
+              errors.add_to_base(
+                I18n.t('error_messages.renren_user_creation_failed',
+                       :default => 'There was a problem creating a new user ' +
+                                   'for your Renren account')) unless self.attempted_record.valid?
 
-            self.attempted_record = nil
-          else
-            self.attempted_record.save_with_validation(false)
+              self.attempted_record = nil
+            else
+              self.attempted_record.save_with_validation(false)
+            end
+          rescue Renren::Session::SessionExpired
+            errors.add_to_base(I18n.t('error_messages.renren_session_expired',
+              :default => "Your Renren Connect session has expired, please reconnect."))
           end
         end
       end
