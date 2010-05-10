@@ -16,7 +16,7 @@ For more information on the renren plugin checkout it's readme http://github.com
 
 === 3. Make some changes to your database
 
-  class AddRenrenConnectFieldsToUser < ActiveRecord::Migration
+  class AddRenrenConnectFieldsToUsers < ActiveRecord::Migration
     def self.up
       add_column :users, :renren_uid, :integer
       add_column :users, :renren_session_key, :string
