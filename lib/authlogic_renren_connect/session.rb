@@ -98,14 +98,17 @@ module AuthlogicRenrenConnect
             #
             # We assign it after the call to new in case the attribute is protected.
 
-            new_user = klass.new
-
-            if klass == renren_user_class
-              new_user.send(:"#{renren_uid_field}=", renren_session.user.uid)
-              new_user.send(:"#{renren_session_key_field}=", renren_session.session_key)
-            else
-              new_user.send(:"build_#{renren_user_class.to_s.underscore}", :"#{renren_uid_field}" => renren_session.user.uid, :"#{renren_session_key_field}" => renren_session.session_key)
-            end
+            # new_user = klass.new
+            # 
+            # if klass == renren_user_class
+            #   new_user.send(:"#{renren_uid_field}=", renren_session.user.uid)
+            #   new_user.send(:"#{renren_session_key_field}=", renren_session.session_key)
+            # else
+            #   new_user.send(:"build_#{renren_user_class.to_s.underscore}", :"#{renren_uid_field}" => renren_session.user.uid, :"#{renren_session_key_field}" => renren_session.session_key)
+            # end
+            new_user = renren_user_class.new
+            new_user.send(:"#{renren_uid_field}=", renren_session.user.uid)
+            new_user.send(:"#{renren_session_key_field}=", renren_session.session_key)
 
             new_user.before_connect(renren_session) if new_user.respond_to?(:before_connect)
 
